@@ -75,6 +75,31 @@ export function timeRangeToDisplayText(
 }
 
 /**
+ * Converts a parsed TimeRange into a fully formatted date string,
+ * always rendering both start and end as absolute dates in the given format.
+ */
+export function timeRangeToFullFormattedText(
+  timeRange: TimeRange,
+  options?: TimeRangeTransformOptions
+): string {
+  const { delimiter = DATE_RANGE_DISPLAY_DELIMITER, dateFormat = DEFAULT_DATE_FORMAT } =
+    options ?? {};
+
+  if (timeRange.isInvalid) {
+    return timeRange.value;
+  }
+
+  const formattedStart = timeRange.startDate
+    ? formatAbsoluteInstant(timeRange.startDate, dateFormat)
+    : timeRange.start;
+  const formattedEnd = timeRange.endDate
+    ? formatAbsoluteInstant(timeRange.endDate, dateFormat)
+    : timeRange.end;
+
+  return `${formattedStart} ${delimiter.trim()} ${formattedEnd}`;
+}
+
+/**
  * Formats a single date instant for display.
  * Converts date math to natural language where possible.
  */
@@ -123,12 +148,6 @@ function dateMathToRelativeParts(
  * Formats relative time as natural language.
  * e.g., (7, 'm', false) => "7 minutes ago"
  * e.g., (3, 'd', true) => "3 days from now"
- *
- * TODO: translate the output of this function
- * using @kbn/i18n with ICU plural syntax for each unit/direction combination.
- * Other user-facing strings in this file (e.g. "now", the delimiter) also need
- * to be translated.
- * https://github.com/elastic/eui-private/issues/534
  */
 function formatRelativeTime(count: number, unit: string, isFuture: boolean): string {
   const unitName = UNIT_SHORT_TO_FULL_MAP[unit] || unit;

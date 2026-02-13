@@ -22,15 +22,6 @@ import {
 import type { DateType, DateString, TimeRange, TimeRangeTransformOptions } from '../types';
 import { isValidTimeRange } from '../utils';
 
-/**
- * Creates a TimeRange, automatically computing `isInvalid` from the range fields.
- */
-function buildTimeRange(fields: Omit<TimeRange, 'isInvalid'>): TimeRange {
-  const range: TimeRange = { ...fields, isInvalid: true };
-  range.isInvalid = !isValidTimeRange(range);
-  return range;
-}
-
 // Shorthand: "-7m", "+7d", "now-7m", "now+7d/d"
 const SHORTHAND_REGEX = /^(now)?([+-])(\d+)([smhdwMy])(\/[smhdwMy])?$/i;
 
@@ -73,9 +64,6 @@ const getDelimiterPattern = (delimiter: string) => {
 
 /**
  * Main parsing function to transform text into a time range
- *
- * TODO: Move preset matching out of this function into a separate step (e.g. `matchPreset`),
- * so this function stays focused on text parsing only.
  */
 export function textToTimeRange(text: string, options?: TimeRangeTransformOptions): TimeRange {
   const trimmed = text.trim();
@@ -103,15 +91,26 @@ export function textToTimeRange(text: string, options?: TimeRangeTransformOption
     (preset) => preset.label.toLowerCase() === trimmed.toLowerCase()
   );
   if (matchedPreset) {
-    return buildTimeRange({
+    const startDate = parseDateStringToDate(matchedPreset.start);
+    const endDate = parseDateStringToDate(matchedPreset.end, {
+      roundUp: true,
+    });
+    const type: [DateType, DateType] = [
+      dateStringToDateType(matchedPreset.start),
+      dateStringToDateType(matchedPreset.end),
+    ];
+    const range: TimeRange = {
       value: text,
       start: matchedPreset.start,
       end: matchedPreset.end,
-      startDate: parseDateStringToDate(matchedPreset.start),
-      endDate: parseDateStringToDate(matchedPreset.end, { roundUp: true }),
-      type: [dateStringToDateType(matchedPreset.start), dateStringToDateType(matchedPreset.end)],
+      startDate,
+      endDate,
+      type,
       isNaturalLanguage: true,
-    });
+      isInvalid: true, // will set below
+    };
+    range.isInvalid = !isValidTimeRange(range);
+    return range;
   }
 
   // (2) Check if it's a single value (no delimiter)
@@ -121,18 +120,26 @@ export function textToTimeRange(text: string, options?: TimeRangeTransformOption
     // Try natural duration: "last 7 minutes", "today", etc.
     const naturalDuration = getTimeRangeBoundsFromNaturalDuration(trimmed);
     if (naturalDuration) {
-      return buildTimeRange({
+      const startDate = parseDateStringToDate(naturalDuration.start);
+      const endDate = parseDateStringToDate(naturalDuration.end, {
+        roundUp: true,
+      });
+      const type: [DateType, DateType] = [
+        dateStringToDateType(naturalDuration.start),
+        dateStringToDateType(naturalDuration.end),
+      ];
+      const range: TimeRange = {
         value: text,
         start: naturalDuration.start,
         end: naturalDuration.end,
-        startDate: parseDateStringToDate(naturalDuration.start),
-        endDate: parseDateStringToDate(naturalDuration.end, { roundUp: true }),
-        type: [
-          dateStringToDateType(naturalDuration.start),
-          dateStringToDateType(naturalDuration.end),
-        ],
+        startDate,
+        endDate,
+        type,
         isNaturalLanguage: true,
-      });
+        isInvalid: true, // will set below
+      };
+      range.isInvalid = !isValidTimeRange(range);
+      return range;
     }
 
     // Try as a single instant (treat as start, with end = now)
@@ -140,25 +147,37 @@ export function textToTimeRange(text: string, options?: TimeRangeTransformOption
     if (singleInstant) {
       // future shorthand exception (start = now)
       if (SHORTHAND_REGEX.test(singleInstant) && singleInstant.startsWith('now+')) {
-        return buildTimeRange({
+        const startDate = new Date(); // now
+        const endDate = parseDateStringToDate(singleInstant);
+        const type: [DateType, DateType] = [DATE_TYPE_NOW, dateStringToDateType(singleInstant)];
+        const range: TimeRange = {
           value: text,
           start: 'now',
           end: singleInstant,
-          startDate: new Date(), // now
-          endDate: parseDateStringToDate(singleInstant),
-          type: [DATE_TYPE_NOW, dateStringToDateType(singleInstant)],
+          startDate,
+          endDate,
+          type,
           isNaturalLanguage: false,
-        });
+          isInvalid: true, // will set below
+        };
+        range.isInvalid = !isValidTimeRange(range);
+        return range;
       }
-      return buildTimeRange({
+      const startDate = parseDateStringToDate(singleInstant);
+      const endDate = new Date(); // now
+      const type: [DateType, DateType] = [dateStringToDateType(singleInstant), DATE_TYPE_NOW];
+      const range: TimeRange = {
         value: text,
         start: singleInstant,
         end: 'now',
-        startDate: parseDateStringToDate(singleInstant),
-        endDate: new Date(), // now
-        type: [dateStringToDateType(singleInstant), DATE_TYPE_NOW],
+        startDate,
+        endDate,
+        type,
         isNaturalLanguage: false,
-      });
+        isInvalid: true, // will set below
+      };
+      range.isInvalid = !isValidTimeRange(range);
+      return range;
     }
 
     return invalidResult;
@@ -180,15 +199,22 @@ export function textToTimeRange(text: string, options?: TimeRangeTransformOption
     return invalidResult;
   }
 
-  return buildTimeRange({
+  const startDate = parseDateStringToDate(start);
+  const endDate = parseDateStringToDate(end, { roundUp: true });
+  const type: [DateType, DateType] = [dateStringToDateType(start), dateStringToDateType(end)];
+
+  const range: TimeRange = {
     value: text,
     start,
     end,
-    startDate: parseDateStringToDate(start),
-    endDate: parseDateStringToDate(end, { roundUp: true }),
-    type: [dateStringToDateType(start), dateStringToDateType(end)],
+    startDate,
+    endDate,
+    type,
     isNaturalLanguage: false,
-  });
+    isInvalid: true, // will set below
+  };
+  range.isInvalid = !isValidTimeRange(range);
+  return range;
 }
 
 function getTimeRangeBoundsFromNaturalDuration(

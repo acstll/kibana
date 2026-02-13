@@ -33,7 +33,7 @@ type Story = StoryObj<DateRangePickerProps>;
 
 export const Playground: Story = {
   args: {
-    defaultValue: 'last 20 minutes',
+    value: 'last 20 minutes',
   },
   render: (args) => <StatefulDateRangePicker {...args} />,
 };

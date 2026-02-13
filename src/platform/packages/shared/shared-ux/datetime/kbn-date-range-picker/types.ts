@@ -35,7 +35,7 @@ export interface TimeRange {
   end: DateString;
   startDate: Date | null;
   endDate: Date | null;
-  type: [DateType, DateType];
+  type: [DateType | null, DateType | null];
   isNaturalLanguage: boolean;
   isInvalid: boolean;
 }
