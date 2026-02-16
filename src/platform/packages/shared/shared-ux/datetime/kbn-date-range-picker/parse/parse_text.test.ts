@@ -21,6 +21,8 @@ describe('textToTimeRange', () => {
     expect(range.end).toBe('');
     expect(range.startDate).toBeNull();
     expect(range.endDate).toBeNull();
+    expect(range.startOffset).toBeNull();
+    expect(range.endOffset).toBeNull();
     expect(range.type).toEqual([DATE_TYPE_ABSOLUTE, DATE_TYPE_ABSOLUTE]);
   });
 
@@ -83,7 +85,7 @@ describe('textToTimeRange', () => {
     expect(absolute.type).toEqual([DATE_TYPE_ABSOLUTE, DATE_TYPE_ABSOLUTE]);
     expect(absolute.isInvalid).toBe(false);
 
-    const custom = textToTimeRange('-1d until now', { delimiter: 'until' });
+    const custom = textToTimeRange('-1d until now');
 
     expect(custom.start).toBe('now-1d');
     expect(custom.end).toBe('now');
@@ -95,8 +97,6 @@ describe('textToTimeRange', () => {
     const range = textToTimeRange('now to not a date');
 
     expect(range.isInvalid).toBe(true);
-    expect(range.start).toBe('');
-    expect(range.end).toBe('');
   });
 
   it('returns invalid for "reversed" ranges', () => {

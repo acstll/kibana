@@ -18,6 +18,8 @@ describe('isValidTimeRange', () => {
     end: 'now',
     startDate: new Date(0),
     endDate: new Date(1000),
+    startOffset: { amount: -1, unit: 'd' },
+    endOffset: null,
     type: [DATE_TYPE_RELATIVE, DATE_TYPE_NOW],
     isNaturalLanguage: false,
     isInvalid: true,
