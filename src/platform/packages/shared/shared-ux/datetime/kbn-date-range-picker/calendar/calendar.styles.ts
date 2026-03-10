@@ -9,10 +9,9 @@
 
 import { css } from '@emotion/react';
 import { euiScrollBarStyles, type UseEuiTheme } from '@elastic/eui';
+import { CALENDAR_MONTH_ESTIMATED_HEIGHT } from './calendar.constants';
 
-/**
- * Fixed container height is required for virtuoso to work correctly.
- */
+/** Fixed panel height for the calendar scroll area. */
 const CALENDAR_HEIGHT = 394;
 
 export const calendarStyles = (euiThemeContext: UseEuiTheme) => {
@@ -22,15 +21,19 @@ export const calendarStyles = (euiThemeContext: UseEuiTheme) => {
     position: relative;
     height: ${CALENDAR_HEIGHT}px;
     flex-grow: 1;
+  `;
 
-    [data-virtuoso-scroller] {
-      ${euiScrollBarStyles(euiThemeContext)}
-    }
+  const scroller = css`
+    height: 100%;
+    overflow-y: auto;
+    padding-left: ${euiTheme.size.base};
+    padding-right: ${euiTheme.size.base};
+    ${euiScrollBarStyles(euiThemeContext)}
+  `;
 
-    [data-testid='virtuoso-item-list'] {
-      padding-left: ${euiTheme.size.base};
-      padding-right: ${euiTheme.size.base};
-    }
+  const monthItem = css`
+    content-visibility: auto;
+    contain-intrinsic-size: auto ${CALENDAR_MONTH_ESTIMATED_HEIGHT}px;
   `;
 
   const todayButton = css`
@@ -43,5 +46,5 @@ export const calendarStyles = (euiThemeContext: UseEuiTheme) => {
     z-index: ${euiTheme.levels.mask};
   `;
 
-  return { container, todayButton };
+  return { container, scroller, monthItem, todayButton };
 };
