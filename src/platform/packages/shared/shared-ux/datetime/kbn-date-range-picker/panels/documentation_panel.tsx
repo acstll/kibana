@@ -10,7 +10,14 @@
 import React from 'react';
 
 import { css } from '@emotion/react';
-import { EuiFlexGroup, EuiMarkdownFormat, useEuiTheme, useEuiFontSize } from '@elastic/eui';
+import {
+  EuiFlexGroup,
+  EuiLink,
+  EuiText,
+  EuiMarkdownFormat,
+  useEuiTheme,
+  useEuiFontSize,
+} from '@elastic/eui';
 
 import {
   PanelContainer,
@@ -19,6 +26,9 @@ import {
   PanelBodySection,
   SubPanelHeading,
 } from '../date_range_picker_panel_ui';
+import { documentationPanelTexts } from '../translations';
+
+const DETAILED_DOCS_URL = 'https://www.elastic.co/';
 
 interface SectionProps {
   heading?: string;
@@ -37,7 +47,15 @@ const Section = ({ heading, markdown }: SectionProps) => {
   return (
     <EuiFlexGroup gutterSize="s" direction="column">
       {heading && <h3 css={headingStyles}>{heading}</h3>}
-      <EuiMarkdownFormat color="text" textSize="xs">
+      <EuiMarkdownFormat
+        color="text"
+        textSize="xs"
+        css={css`
+          .euiCode {
+            color: ${euiTheme.colors.textSubdued};
+          }
+        `}
+      >
         {markdown}
       </EuiMarkdownFormat>
     </EuiFlexGroup>
@@ -45,12 +63,25 @@ const Section = ({ heading, markdown }: SectionProps) => {
 };
 
 const Content = () => (
-  <EuiFlexGroup gutterSize="m" direction="column">
-    <Section markdown={`Type \`to\` to split start and end`} />
-    <Section heading="Absolute time formats" markdown={`foo bar`} />
-    <Section heading="Relative time" markdown={`foo bar`} />
-    <Section heading="Custom combinations" markdown={`foo bar`} />
-    <a href="#">Detailed documentation</a>
+  <EuiFlexGroup gutterSize="m" direction="column" css={css({ maxInlineSize: '36ch' })}>
+    <Section markdown={documentationPanelTexts.intro} />
+    <Section
+      heading={documentationPanelTexts.absoluteHeading}
+      markdown={documentationPanelTexts.absoluteBody}
+    />
+    <Section
+      heading={documentationPanelTexts.relativeHeading}
+      markdown={documentationPanelTexts.relativeBody}
+    />
+    <Section
+      heading={documentationPanelTexts.combinationsHeading}
+      markdown={documentationPanelTexts.combinationsBody}
+    />
+    <EuiText size="xs">
+      <EuiLink href={DETAILED_DOCS_URL} target="_blank" external>
+        {documentationPanelTexts.detailedDocumentationLink}
+      </EuiLink>
+    </EuiText>
   </EuiFlexGroup>
 );
 
@@ -61,7 +92,7 @@ export function DocumentationPanel() {
   return (
     <PanelContainer>
       <PanelHeader>
-        <SubPanelHeading>Shorthand syntax</SubPanelHeading>
+        <SubPanelHeading>{documentationPanelTexts.heading}</SubPanelHeading>
       </PanelHeader>
       <PanelBody spacingSide="both">
         <PanelBodySection>
