@@ -71,7 +71,7 @@ export const dialogTexts = {
 
 export const documentationPanelTexts = {
   heading: i18n.translate('sharedUXPackages.dateRangePicker.documentationPanel.heading', {
-    defaultMessage: 'Shorthand syntax',
+    defaultMessage: 'Documentation',
   }),
   intro: i18n.translate('sharedUXPackages.dateRangePicker.documentationPanel.intro', {
     defaultMessage:

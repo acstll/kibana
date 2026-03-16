@@ -9,75 +9,37 @@
 
 import React from 'react';
 
-import { css } from '@emotion/react';
-import {
-  EuiFlexGroup,
-  EuiLink,
-  EuiText,
-  EuiMarkdownFormat,
-  useEuiTheme,
-  useEuiFontSize,
-} from '@elastic/eui';
+import { EuiFlexGroup, EuiLink, EuiText } from '@elastic/eui';
 
 import {
   PanelContainer,
   PanelHeader,
   PanelBody,
   PanelBodySection,
+  PanelBodySectionInfo,
   SubPanelHeading,
 } from '../date_range_picker_panel_ui';
 import { documentationPanelTexts } from '../translations';
 
+// TODO add real URL
 const DETAILED_DOCS_URL = 'https://www.elastic.co/';
 
-interface SectionProps {
-  heading?: string;
-  markdown: string;
-}
-
-const Section = ({ heading, markdown }: SectionProps) => {
-  const { euiTheme } = useEuiTheme();
-  const font = useEuiFontSize('xs');
-  const headingStyles = css`
-    font-size: ${font.fontSize};
-    line-height: ${font.lineHeight};
-    font-weight: ${euiTheme.font.weight.semiBold};
-  `;
-
-  return (
-    <EuiFlexGroup gutterSize="s" direction="column">
-      {heading && <h3 css={headingStyles}>{heading}</h3>}
-      <EuiMarkdownFormat
-        color="text"
-        textSize="xs"
-        css={css`
-          .euiCode {
-            color: ${euiTheme.colors.textSubdued};
-          }
-        `}
-      >
-        {markdown}
-      </EuiMarkdownFormat>
-    </EuiFlexGroup>
-  );
-};
-
 const Content = () => (
-  <EuiFlexGroup gutterSize="m" direction="column" css={css({ maxInlineSize: '36ch' })}>
-    <Section markdown={documentationPanelTexts.intro} />
-    <Section
+  <EuiFlexGroup gutterSize="m" direction="column">
+    <PanelBodySectionInfo markdown={documentationPanelTexts.intro} />
+    <PanelBodySectionInfo
       heading={documentationPanelTexts.absoluteHeading}
       markdown={documentationPanelTexts.absoluteBody}
     />
-    <Section
+    <PanelBodySectionInfo
       heading={documentationPanelTexts.relativeHeading}
       markdown={documentationPanelTexts.relativeBody}
     />
-    <Section
+    <PanelBodySectionInfo
       heading={documentationPanelTexts.combinationsHeading}
       markdown={documentationPanelTexts.combinationsBody}
     />
-    <EuiText size="xs">
+    <EuiText size="s">
       <EuiLink href={DETAILED_DOCS_URL} target="_blank" external>
         {documentationPanelTexts.detailedDocumentationLink}
       </EuiLink>
