@@ -392,7 +392,7 @@ export const QueryBarTopRow = React.memo(
 
     const shouldUseLegacyTimePicker =
       !props.enableDateRangePicker ||
-      !kibana.services.featureFlags?.getBooleanValue(DATE_RANGE_PICKER_FEATURE_FLAG, false);
+      !kibana.services.featureFlags?.getBooleanValue(DATE_RANGE_PICKER_FEATURE_FLAG, true);
 
     const isQueryLangSelected = props.query && !isOfQueryType(props.query);
 
